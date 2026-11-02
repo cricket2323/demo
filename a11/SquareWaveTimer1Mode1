@@ -1,0 +1,26 @@
+#include <mcs51/8051.h>
+
+void main(void) {
+    // Configure Timer 1 in Mode 1 (16-bit Timer, C/T = 0)
+    TMOD = 0x10;
+
+    while (1) {
+        // Load initial count for 500 us delay (65536 - 500 = 65036 = 0xFE0C)
+        TH1 = 0xFE;
+        TL1 = 0x0C;
+
+        // Clear overflow flag and start timer
+        TF1 = 0;
+        TR1 = 1;
+
+        // Wait until Timer 1 overflows (TF1 set after 500 us)
+        while (!TF1);
+
+        // Stop timer and clear the overflow flag
+        TR1 = 0;
+        TF1 = 0;
+
+        // Toggle output pin on Port 2 (e.g., P2.0)
+        P2_0 = !P2_0;
+    }
+}

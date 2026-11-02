@@ -1,0 +1,48 @@
+ORG 0000H
+
+    ; =========================================================
+    ; Part 1: Addition of two 8-bit Hex numbers with Carry capture
+    ; Example: 0xC8 + 0x5E = 0x126 (Sum = 26H, Carry = 01H)
+    ; =========================================================
+    MOV A, #0C8H        ; First hex operand
+    ADD A, #5EH         ; Binary addition: C8H + 5EH = 26H, CY = 1
+    MOV 40H, A          ; Store lower byte of Sum at RAM 40H
+    MOV A, #00H
+    ADDC A, #00H        ; Capture CY flag (00H + CY -> A)
+    MOV 41H, A          ; Store Carry at RAM 41H (01H)
+
+    ; =========================================================
+    ; Part 2: Subtraction of two 8-bit Hex numbers with Borrow
+    ; Example: 0x9B - 0x3F = 0x5C
+    ; =========================================================
+    MOV A, #9BH         ; Minuend
+    CLR C               ; Must clear CY before SUBB
+    SUBB A, #3FH        ; 9BH - 3FH = 5CH, CY = 0
+    MOV 42H, A          ; Store Difference at RAM 42H
+    MOV A, #00H
+    ADDC A, #00H        ; Capture Borrow if Minuend < Subtrahend
+    MOV 43H, A          ; Store Borrow flag at RAM 43H
+
+    ; =========================================================
+    ; Part 3: Multiplication of two 8-bit Hex numbers
+    ; Example: 0xA4 * 0x12 = 0x0B88 (Product: B = 0BH, A = 88H)
+    ; =========================================================
+    MOV A, #0A4H        ; Multiplicand
+    MOV B, #12H         ; Multiplier
+    MUL AB              ; A * B -> B:A = 0B88H, OV = 1 (since B > 0)
+    MOV 44H, A          ; Store lower byte of product (88H) at RAM 44H
+    MOV 45H, B          ; Store upper byte of product (0BH) at RAM 45H
+
+    ; =========================================================
+    ; Part 4: Division of two 8-bit Hex numbers
+    ; Example: 0xF5 / 0x1B -> Quotient = 0x09, Remainder = 0x02
+    ; Calculation: F5H (245) / 1BH (27) = 9 R 2
+    ; =========================================================
+    MOV A, #0F5H        ; Dividend
+    MOV B, #1BH         ; Divisor
+    DIV AB              ; A = Quotient (09H), B = Remainder (02H)
+    MOV 46H, A          ; Store Quotient at RAM 46H
+    MOV 47H, B          ; Store Remainder at RAM 47H
+
+    SJMP $              ; Terminate
+    END

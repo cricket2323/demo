@@ -1,0 +1,19 @@
+#include <mcs51/8051.h>
+
+void main(void) {
+    unsigned char num1 = 150;
+    unsigned char num2 = 120;
+    unsigned int sum;
+
+    sum = (unsigned int)num1 + num2;
+
+    P1 = (unsigned char)sum;
+
+    if (sum > 255) {
+        P2_0 = 1;
+    } else {
+        P2_0 = 0;
+    }
+
+    while(1);
+}

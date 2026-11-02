@@ -1,0 +1,28 @@
+ORG 0000H
+
+    MOV R0, #40H
+    MOV @R0, #00H
+    INC R0
+    MOV @R0, #01H
+
+    MOV R1, #00H
+    MOV R2, #01H
+    MOV R3, #06H
+
+FIB_LOOP:
+    INC R0
+    MOV A, R1
+    ADD A, R2
+    MOV @R0, A
+
+    MOV A, R2
+    MOV R1, A
+    MOV A, @R0
+    MOV R2, A
+
+    DJNZ R3, FIB_LOOP
+
+HERE:
+    SJMP HERE
+
+    END

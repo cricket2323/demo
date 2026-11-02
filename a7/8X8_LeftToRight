@@ -1,0 +1,35 @@
+ORG 0000H
+
+    ; Enable all rows at once on Port 2 (Active-Low: 00H turns all rows ON)
+    MOV P2, #00H
+    MOV A, #7FH
+
+MAIN_LOOP:
+    MOV R2, #07H
+
+LEFT_TO_RIGHT:
+    MOV P1, A
+    ACALL DELAY
+    RR A
+    DJNZ R2, LEFT_TO_RIGHT
+
+    MOV R2, #07H
+
+RIGHT_TO_LEFT:
+    MOV P1, A
+    ACALL DELAY
+    RL A
+    DJNZ R2, RIGHT_TO_LEFT
+
+    SJMP MAIN_LOOP
+
+DELAY:
+    MOV R3, #02H
+D_OUTER:
+    MOV R4, #02H
+D_INNER:
+    DJNZ R4, D_INNER
+    DJNZ R3, D_OUTER
+    RET
+
+    END

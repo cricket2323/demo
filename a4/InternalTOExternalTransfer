@@ -1,0 +1,17 @@
+ORG 0000H
+
+    MOV R0, #20H
+    MOV DPTR, #2000H
+    MOV R2, #0AH
+
+XFER_LOOP:
+    MOV A, @R0
+    MOVX @DPTR, A
+    INC R0
+    INC DPTR
+    DJNZ R2, XFER_LOOP
+
+HERE:
+    SJMP HERE
+
+    END

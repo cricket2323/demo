@@ -1,0 +1,30 @@
+#include <mcs51/8051.h>
+
+void main(void) {
+    unsigned int vehicle_count;
+
+    // Configure Timer 1 in Mode 1 (16-bit Counter, C/T = 1)
+    TMOD = 0x50;
+
+    // Clear Timer 1 count registers
+    TH1 = 0x00;
+    TL1 = 0x00;
+
+    // Start Timer 1
+    TR1 = 1;
+
+    // Initialize "Lane Full" indicator on P1.0 to 0 (OFF)
+    P1_0 = 0;
+
+    while (1) {
+        // Read 16-bit counter value
+        vehicle_count = ((unsigned int)TH1 << 8) | TL1;
+
+        // Check if 100 vehicles have passed
+        if (vehicle_count >= 100) {
+            P1_0 = !P1_0;  // Toggle "Lane Full" indicator bit on Port 1
+            TL1 = 0x00;    // Reset count registers
+            TH1 = 0x00;
+        }
+    }
+}

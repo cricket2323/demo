@@ -1,0 +1,41 @@
+#include <mcs51/8051.h>
+
+// Efficient integer square root using binary search
+unsigned char integer_sqrt(unsigned char n) {
+    unsigned char low = 0;
+    unsigned char high = 15; // sqrt(255) <= 15
+    unsigned char ans = 0;
+    unsigned int mid;
+
+    while (low <= high) {
+        mid = (low + high) / 2;
+
+        if ((mid * mid) <= n) {
+            ans = (unsigned char)mid;
+            low = mid + 1; // Try larger candidate
+        } else {
+            if (mid == 0) break; // Avoid unsigned underflow
+            high = mid - 1;
+        }
+    }
+    return ans;
+}
+
+void main(void) {
+    unsigned char input_n;
+    unsigned char result;
+
+    while (1) {
+        // Step 1: Set Port 0 pins HIGH to configure as input
+        P0 = 0xFF;
+
+        // Step 2: Read dynamic input N from Port 0
+        input_n = P0;
+
+        // Step 3: Compute integer square root
+        result = integer_sqrt(input_n);
+
+        // Step 4: Output result to Port 1 logic probes
+        P1 = result;
+    }
+}

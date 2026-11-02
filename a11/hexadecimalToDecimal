@@ -1,0 +1,24 @@
+#include <mcs51/8051.h>
+
+void main(void) {
+    unsigned char hex_input;
+    unsigned char hundreds;
+    unsigned char tens;
+    unsigned char units;
+
+    while (1) {
+        // Step 1: Configure Port 0 as input and read the 2-digit hex byte
+        P0 = 0xFF;
+        hex_input = P0;
+
+        // Step 2: Extract BCD / decimal digits
+        hundreds = hex_input / 100;
+        tens     = (hex_input % 100) / 10;
+        units    = hex_input % 10;
+
+        // Step 3: Output digits to the respective ports
+        P1 = hundreds; // Port 1 gets Hundreds digit
+        P2 = tens;     // Port 2 gets Tens digit
+        P3 = units;    // Port 3 gets Units digit
+    }
+}

@@ -1,0 +1,60 @@
+#include <mcs51/8051.h>
+
+// 7-segment lookup table for digits 0-9 (Common Cathode)
+__code const unsigned char seg_code[10] = {
+    0x3F, // 0
+    0x06, // 1
+    0x5B, // 2
+    0x4F, // 3
+    0x66, // 4
+    0x6D, // 5
+    0x7D, // 6
+    0x07, // 7
+    0x7F, // 8
+    0x6F  // 9
+};
+
+// Short delay (~2 ms) for multiplexing refresh loop
+void delay_refresh(void) {
+    volatile unsigned char i, j;
+    for (i = 0; i < 4; i++) {
+        for (j = 0; j < 120; j++) {
+            __asm nop __endasm;
+        }
+    }
+}
+
+void main(void) {
+    unsigned char count = 0;
+    unsigned char tens, units;
+    unsigned int refresh_cycles;
+
+    while (1) {
+        // Separate current count into tens and units
+        tens = count / 10;
+        units = count % 10;
+
+        // Multiplex both digits continuously for ~1 second
+        for (refresh_cycles = 0; refresh_cycles < 120; refresh_cycles++) {
+            // --- Display Digit 1 (Tens place) ---
+            P2_1 = 1;                 // Disable Units digit
+            P1 = seg_code[tens];       // Send tens segment pattern
+            P2_0 = 0;                 // Enable Tens digit (pull cathode LOW)
+            delay_refresh();
+            P2_0 = 1;                 // Blank digit to prevent ghosting
+
+            // --- Display Digit 2 (Units place) ---
+            P2_0 = 1;                 // Disable Tens digit
+            P1 = seg_code[units];      // Send units segment pattern
+            P2_1 = 0;                 // Enable Units digit (pull cathode LOW)
+            delay_refresh();
+            P2_1 = 1;                 // Blank digit to prevent ghosting
+        }
+
+        // Increment count and wrap around after 99
+        count++;
+        if (count > 99) {
+            count = 0;
+        }
+    }
+}

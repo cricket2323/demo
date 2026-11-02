@@ -1,0 +1,17 @@
+
+ORG 0000H
+
+MOV A, #00H       
+MOV R0, #01H      
+MOV R1, #05H      
+
+LOOP:
+    ADD A, R0     
+    INC R0        
+    DJNZ R1, LOOP 
+
+HERE:
+    SJMP HERE     
+
+END
+

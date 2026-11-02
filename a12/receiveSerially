@@ -1,0 +1,42 @@
+#include <mcs51/8051.h>
+
+void uart_init(void) {
+    // Configure Timer 1 in Mode 2 (8-bit Auto-Reload)
+    TMOD = 0x20;
+
+    // Load reload value for 4800 baud with 11.0592 MHz crystal
+    TH1 = 0xFA;
+    TL1 = 0xFA;
+
+    // Start Timer 1
+    TR1 = 1;
+
+    // Mode 1 (8-bit data, 1 stop bit), REN = 1 (Reception Enabled)
+    SCON = 0x50;
+}
+
+unsigned char uart_rx_char(void) {
+    // Wait until a full character has been received (RI goes HIGH)
+    while (!RI);
+
+    // Clear RI flag in software to prepare for next byte
+    RI = 0;
+
+    // Return the received character from the serial buffer
+    return SBUF;
+}
+
+void main(void) {
+    unsigned char ch;
+
+    // Initialize UART at 4800 baud
+    uart_init();
+
+    while (1) {
+        // Wait for incoming serial byte
+        ch = uart_rx_char();
+
+        // Output the received byte to Port 1
+        P1 = ch;
+    }
+}

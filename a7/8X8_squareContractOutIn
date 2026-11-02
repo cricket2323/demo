@@ -1,0 +1,45 @@
+ORG 0000H
+
+MAIN_LOOP:
+    ; 1. 2x2 Center Block
+    MOV P1, #0E7H
+    MOV P2, #0E7H
+    ACALL DELAY
+
+    ; 2. Expand to 4x4 Block
+    MOV P1, #0C3H
+    MOV P2, #0C3H
+    ACALL DELAY
+
+    ; 3. Expand to 6x6 Block
+    MOV P1, #81H
+    MOV P2, #81H
+    ACALL DELAY
+
+    ; 4. Expand to Full 8x8 Matrix
+    MOV P1, #00H
+    MOV P2, #00H
+    ACALL DELAY
+
+    ; 5. Contract back to 6x6 Block
+    MOV P1, #81H
+    MOV P2, #81H
+    ACALL DELAY
+
+    ; 6. Contract back to 4x4 Block
+    MOV P1, #0C3H
+    MOV P2, #0C3H
+    ACALL DELAY
+
+    SJMP MAIN_LOOP
+
+DELAY:
+    MOV R3, #02H
+D_OUTER:
+    MOV R4, #02H
+D_INNER:
+    DJNZ R4, D_INNER
+    DJNZ R3, D_OUTER
+    RET
+
+    END

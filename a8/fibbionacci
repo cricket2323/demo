@@ -1,0 +1,64 @@
+#include <mcs51/8051.h>
+
+void delay_1s(void) {
+    volatile unsigned int i;
+    volatile unsigned int j;
+    for (i = 0; i < 300; i++) {
+        for (j = 0; j < 300; j++) {
+            __asm nop __endasm;
+        }
+    }
+}
+
+void main(void) {
+    unsigned char N;
+    unsigned char count;
+    unsigned int a, b, next_term;
+
+    while (1) {
+        // Configure Port 0 as input
+        P0 = 0xFF;
+        
+        // Read term count N from Port 0
+        N = P0;
+
+        // If N is 0, idle
+        if (N == 0) {
+            P1 = 0x00;
+            continue;
+        }
+
+        // First term F(1) = 0
+        a = 0;
+        b = 1;
+        P1 = (unsigned char)a;
+        delay_1s();
+
+        count = 1;
+        while (count < N) {
+            if (count == 1) {
+                next_term = b;
+            } else {
+                next_term = a + b;
+                a = b;
+                b = next_term;
+            }
+
+            // Check 8-bit capacity overflow (> 255)
+            if (next_term > 255) {
+                P1 = 0xFF; // Set all Port 1 bits HIGH on overflow
+                delay_1s();
+                break;
+            }
+
+            P1 = (unsigned char)next_term;
+            delay_1s();
+            count++;
+        }
+
+        // Hold display on the last term for 3 seconds before repeating
+        delay_1s();
+        delay_1s();
+        delay_1s();
+    }
+}

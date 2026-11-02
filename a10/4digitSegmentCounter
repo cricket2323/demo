@@ -1,0 +1,77 @@
+#include <mcs51/8051.h>
+
+// 7-segment lookup table for digits 0-9 (Common Cathode)
+__code const unsigned char seg_code[10] = {
+    0x3F, // 0
+    0x06, // 1
+    0x5B, // 2
+    0x4F, // 3
+    0x66, // 4
+    0x6D, // 5
+    0x7D, // 6
+    0x07, // 7
+    0x7F, // 8
+    0x6F  // 9
+};
+
+// Short delay (~1.5 ms) for fast digit multiplexing
+void delay_digit(void) {
+    volatile unsigned char i, j;
+    for (i = 0; i < 3; i++) {
+        for (j = 0; j < 100; j++) {
+            __asm nop __endasm;
+        }
+    }
+}
+
+void main(void) {
+    unsigned int count = 0;
+    unsigned char th, hu, te, un;
+    unsigned char cycle;
+
+    while (1) {
+        // Step 1: Decompose count into individual BCD digits
+        th = count / 1000;
+        hu = (count / 100) % 10;
+        te = (count / 10) % 10;
+        un = count % 10;
+
+        // Step 2: Multiplex the 4 digits for ~400 ms total hold time
+        // Each loop iteration takes ~8 ms (4 digits * ~2 ms). 50 * 8 ms ≈ 400 ms.
+        for (cycle = 0; cycle < 50; cycle++) {
+            // --- Digit 1: Thousands place (P2.0) ---
+            P2 = 0xFF;              // Disable all digits
+            P1 = seg_code[th];      // Load Thousands segment code
+            P2_0 = 0;               // Enable Digit 1 (pull cathode LOW)
+            delay_digit();
+            P2_0 = 1;               // Blank digit to prevent ghosting
+
+            // --- Digit 2: Hundreds place (P2.1) ---
+            P2 = 0xFF;              // Disable all digits
+            P1 = seg_code[hu];      // Load Hundreds segment code
+            P2_1 = 0;               // Enable Digit 2 (pull cathode LOW)
+            delay_digit();
+            P2_1 = 1;               // Blank digit to prevent ghosting
+
+            // --- Digit 3: Tens place (P2.2) ---
+            P2 = 0xFF;              // Disable all digits
+            P1 = seg_code[te];      // Load Tens segment code
+            P2_2 = 0;               // Enable Digit 3 (pull cathode LOW)
+            delay_digit();
+            P2_2 = 1;               // Blank digit to prevent ghosting
+
+            // --- Digit 4: Units place (P2.3) ---
+            P2 = 0xFF;              // Disable all digits
+            P1 = seg_code[un];      // Load Units segment code
+            P2_3 = 0;               // Enable Digit 4 (pull cathode LOW)
+            delay_digit();
+            P2_3 = 1;               // Blank digit to prevent ghosting
+        }
+
+        // Step 3: Advance count and roll over to 0000 after 9999
+        count++;
+        if (count > 9999) {
+            count = 0;
+        }
+    }
+}

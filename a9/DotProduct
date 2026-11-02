@@ -1,0 +1,46 @@
+#include <mcs51/8051.h>
+
+void main(void) {
+    unsigned char p0_val, p3_val;
+    unsigned char A[2];
+    unsigned char B[2];
+    unsigned long dot_product;
+    unsigned char i, j;
+
+    while (1) {
+        // Step 1: Configure Port 0 and Port 3 as inputs
+        P0 = 0xFF;
+        P3 = 0xFF;
+
+        // Step 2: Read dynamic inputs
+        p0_val = P0;
+        p3_val = P3;
+
+        // Step 3: Extract 4-bit nibbles for vector components
+        A[0] = p0_val & 0x0F;          // x1 = lower nibble of P0
+        A[1] = (p0_val >> 4) & 0x0F;   // x2 = upper nibble of P0
+
+        B[0] = p3_val & 0x0F;          // y1 = lower nibble of P3
+        B[1] = (p3_val >> 4) & 0x0F;   // y2 = upper nibble of P3
+
+        // Step 4: Compute dot product using nested loops
+        dot_product = 0;
+        for (i = 0; i < 2; i++) {
+            for (j = 0; j < 2; j++) {
+                if (i == j) {
+                    dot_product += (unsigned long)A[i] * B[j];
+                }
+            }
+        }
+
+        // Step 5: Check 16-bit overflow condition (> 65535)
+        if (dot_product > 0xFFFF) {
+            P1 = 0xFF;
+            P2 = 0xFF;
+        } else {
+            // Split 16-bit result across Port 1 and Port 2
+            P1 = (unsigned char)(dot_product & 0xFF);        // Lower byte
+            P2 = (unsigned char)((dot_product >> 8) & 0xFF); // Upper byte
+        }
+    }
+}

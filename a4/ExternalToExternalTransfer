@@ -1,0 +1,19 @@
+ORG 0000H
+
+    MOV DPL, #00H
+    MOV R2, #0AH
+
+XFER_EXT:
+    MOV DPH, #51H
+    MOVX A, @DPTR
+
+    MOV DPH, #91H
+    MOVX @DPTR, A
+
+    INC DPL
+    DJNZ R2, XFER_EXT
+
+HERE:
+    SJMP HERE
+
+    END

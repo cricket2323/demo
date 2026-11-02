@@ -1,0 +1,21 @@
+ORG 0000H
+
+MAIN_LOOP:
+    MOV P1, #0F0H
+    ACALL DELAY
+
+    MOV P1, #0FH
+    ACALL DELAY
+
+    SJMP MAIN_LOOP
+
+DELAY:
+    MOV R3, #02H
+D_OUTER:
+    MOV R4, #02H
+D_INNER:
+    DJNZ R4, D_INNER
+    DJNZ R3, D_OUTER
+    RET
+
+    END

@@ -1,0 +1,27 @@
+ORG 0000H
+
+    MOV R1, #00H
+    MOV DPTR, #2000H
+
+    MOVX A, @DPTR
+    MOV R0, A
+
+    INC DPTR
+    MOVX A, @DPTR
+
+    ADD A, R0
+    JNC NO_CARRY
+    INC R1
+
+NO_CARRY:
+    INC DPTR
+    MOVX @DPTR, A
+
+    INC DPTR
+    MOV A, R1
+    MOVX @DPTR, A
+
+HERE:
+    SJMP HERE
+
+    END

@@ -1,0 +1,13 @@
+ORG 0000H
+
+    MOV R1, #200
+OUTER:
+    MOV R2, #250
+INNER:
+    DJNZ R2, INNER
+    DJNZ R1, OUTER
+
+HERE:
+    SJMP HERE
+
+    END

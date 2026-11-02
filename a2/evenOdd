@@ -1,0 +1,16 @@
+ORG 0000H
+
+MOV A, 30H       ; Read event code from RAM 30H
+JB  ACC.0, ODD   ; If LSB = 1, jump to ODD
+
+EVEN:
+    MOV R2, #00H ; Store 00 for even
+    SJMP HERE
+
+ODD:
+    MOV R2, #01H ; Store 01 for odd
+
+HERE:
+    SJMP HERE    ; Stop here
+
+END

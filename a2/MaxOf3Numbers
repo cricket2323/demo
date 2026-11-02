@@ -1,0 +1,26 @@
+ORG 0000H
+
+    MOV 30H, #25H
+    MOV 31H, #58H
+    MOV 32H, #42H
+
+    MOV A, 30H
+
+    CJNE A, 31H, NEXT1
+NEXT1:
+    JNC COMP_THIRD
+    MOV A, 31H
+
+COMP_THIRD:
+    CJNE A, 32H, NEXT2
+NEXT2:
+    JNC DONE
+    MOV A, 32H
+
+DONE:
+    MOV R0, A
+
+HERE:
+    SJMP HERE
+
+    END

@@ -1,0 +1,81 @@
+ORG 0000H
+
+    ; =========================================================
+    ; Data Setup:
+    ; Number 1: 5 8 4 7 (5847 decimal)
+    ; Stored Little-Endian from RAM 60H to 63H:
+    ; 60H = 07H (Units), 61H = 04H (Tens), 62H = 08H (Hundreds), 63H = 05H (Thousands)
+    ;
+    ; Number 2: 7 6 8 5 (7685 decimal)
+    ; Stored Little-Endian from RAM 64H to 67H:
+    ; 64H = 05H (Units), 65H = 08H (Tens), 66H = 06H (Hundreds), 67H = 07H (Thousands)
+    ;
+    ; Expected Sum: 5847 + 7685 = 13532
+    ; Digits: 2, 3, 5, 3, 1 (stored from RAM 70H to 74H)
+    ; =========================================================
+
+    ; Initialize Number 1 in RAM
+    MOV 60H, #07H       ; Units
+    MOV 61H, #04H       ; Tens
+    MOV 62H, #08H       ; Hundreds
+    MOV 63H, #05H       ; Thousands
+
+    ; Initialize Number 2 in RAM
+    MOV 64H, #05H       ; Units
+    MOV 65H, #08H       ; Tens
+    MOV 66H, #06H       ; Hundreds
+    MOV 67H, #07H       ; Thousands
+
+    CLR C               ; Clear carry before addition chain
+
+    ; --- Digit 0: Units addition ---
+    MOV A, 60H
+    ADDC A, 64H         ; 07H + 05H = 0CH (12)
+    DA A                ; Decimal adjust -> A = 12H, CY = 0
+    MOV R2, A           ; Preserve adjusted value
+    ANL A, #0FH         ; Extract unpacked lower digit -> A = 02H
+    MOV 70H, A          ; Store Units sum at RAM 70H
+    MOV A, R2
+    SWAP A
+    ANL A, #0FH         ; Extract upper nibble as next carry (01H)
+    RRC A               ; Move bit 0 of carry into CY
+    ; (Alternatively, check if raw sum >= 10)
+
+    ; --- Digit 1: Tens addition ---
+    MOV A, 61H
+    ADDC A, 65H         ; 04H + 08H + Carry(1) = 0DH (13)
+    DA A                ; A = 13H
+    MOV R2, A
+    ANL A, #0FH         ; Digits = 03H
+    MOV 71H, A          ; Store Tens sum at RAM 71H
+    MOV A, R2
+    SWAP A
+    ANL A, #0FH
+    RRC A               ; Set CY for next digit
+
+    ; --- Digit 2: Hundreds addition ---
+    MOV A, 62H
+    ADDC A, 66H         ; 08H + 06H + Carry(1) = 0FH (15)
+    DA A                ; A = 15H
+    MOV R2, A
+    ANL A, #0FH         ; Digit = 05H
+    MOV 72H, A          ; Store Hundreds sum at RAM 72H
+    MOV A, R2
+    SWAP A
+    ANL A, #0FH
+    RRC A               ; Set CY for next digit
+
+    ; --- Digit 3: Thousands addition ---
+    MOV A, 63H
+    ADDC A, 67H         ; 05H + 07H + Carry(1) = 0DH (13)
+    DA A                ; A = 13H
+    MOV R2, A
+    ANL A, #0FH         ; Digit = 03H
+    MOV 73H, A          ; Store Thousands sum at RAM 73H
+    MOV A, R2
+    SWAP A
+    ANL A, #0FH
+    MOV 74H, A          ; Store Ten-Thousands digit (01H) at RAM 74H
+
+    SJMP $
+    END

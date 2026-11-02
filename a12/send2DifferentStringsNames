@@ -1,0 +1,46 @@
+#include <mcs51/8051.h>
+
+#define SW P2_0
+
+void uart_init(void) {
+    TMOD = 0x20;      // Timer 1, Mode 2 (8-bit auto-reload)
+    TH1  = 0xFD;      // Reload value for 9600 baud with 11.0592 MHz crystal
+    TL1  = 0xFD;      // Initial value
+    TR1  = 1;         // Start Timer 1
+    SCON = 0x50;      // Mode 1: 8-bit UART, 1 stop bit, REN enabled
+}
+
+void uart_tx_char(unsigned char ch) {
+    SBUF = ch;        // Load character into buffer
+    while (!TI);      // Wait for transmission completion
+    TI = 0;           // Clear flag
+}
+
+void uart_tx_string(const char *str) {
+    while (*str) {
+        uart_tx_char(*str++);
+    }
+}
+
+void delay(void) {
+    volatile unsigned int i, j;
+    for (i = 0; i < 300; i++) {
+        for (j = 0; j < 120; j++) {
+            __asm nop __endasm;
+        }
+    }
+}
+
+void main(void) {
+    SW = 1;           // Configure P2.0 as input
+    uart_init();
+
+    while (1) {
+        if (SW == 0) {
+            uart_tx_string("Krishna\r\n"); // Send First Name
+        } else {
+            uart_tx_string("Mittal\r\n");  // Send Last Name
+        }
+        delay();
+    }
+}

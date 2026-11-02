@@ -1,0 +1,28 @@
+ORG 0000H
+
+    MOV 30H, #45H
+    MOV 31H, #30H
+
+    MOV A, 30H
+    CJNE A, 31H, NOT_EQUAL
+    SJMP EQUAL
+
+NOT_EQUAL:
+    JC LOW
+    SJMP HIGH
+
+EQUAL:
+    MOV R0, #00H
+    SJMP DONE
+
+HIGH:
+    MOV R0, #01H
+    SJMP DONE
+
+LOW:
+    MOV R0, #02H
+
+DONE:
+    SJMP DONE
+
+    END

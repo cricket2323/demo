@@ -1,0 +1,69 @@
+#include <mcs51/8051.h>
+
+unsigned int binary_power(unsigned char x, unsigned char y) {
+    unsigned long result = 1;
+    unsigned long base = x;
+
+    // Edge case: 0^0 = 0
+    if (x == 0 && y == 0) {
+        return 0x0000;
+    }
+
+    // Edge case: 0^Y = 0 (for Y > 0)
+    if (x == 0) {
+        return 0x0000;
+    }
+
+    // Edge case: X^0 = 1 (for X > 0)
+    if (y == 0) {
+        return 0x0001;
+    }
+
+    // Binary Exponentiation (Exponentiation by Squaring)
+    while (y > 0) {
+        // If current lowest bit of exponent is 1 (y is odd)
+        if (y & 1) {
+            result = result * base;
+            if (result > 0xFFFF) {
+                return 0xFFFF; // 16-bit overflow
+            }
+        }
+
+        // Divide exponent by 2
+        y >>= 1;
+
+        // If exponent remains, square the base
+        if (y > 0) {
+            base = base * base;
+            // If base squared exceeds 16 bits and still needed, flag overflow
+            if (base > 0xFFFF && (y & 1)) {
+                return 0xFFFF;
+            }
+        }
+    }
+
+    return (unsigned int)result;
+}
+
+void main(void) {
+    unsigned char base_x;
+    unsigned char exp_y;
+    unsigned int ans;
+
+    while (1) {
+        // Configure Port 0 and Port 3 as digital inputs
+        P0 = 0xFF;
+        P3 = 0xFF;
+
+        // Read dynamic inputs from Port 0 and Port 3
+        base_x = P0;
+        exp_y  = P3;
+
+        // Compute power using binary exponentiation
+        ans = binary_power(base_x, exp_y);
+
+        // Output lower byte to Port 1 and upper byte to Port 2
+        P1 = (unsigned char)(ans & 0xFF);
+        P2 = (unsigned char)((ans >> 8) & 0xFF);
+    }
+}

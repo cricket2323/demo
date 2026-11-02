@@ -1,0 +1,28 @@
+#include <mcs51/8051.h>
+
+void main(void) {
+    // Two 16-bit test values chosen to produce a 17th carry bit
+    // Example: 0x8000 (32768) + 0x9000 (36864) = 0x11000 (69632)
+    // Lower Byte = 0x00, Upper Byte = 0x10, Carry = 1
+    unsigned int num1 = 0x8234;
+    unsigned int num2 = 0x9156;
+    unsigned long sum;
+
+    // Perform 16-bit addition with promotion to 32 bits
+    sum = (unsigned long)num1 + num2;
+
+    // Output lower byte (bits 0-7) to Port 1
+    P1 = (unsigned char)(sum & 0xFF);
+
+    // Output upper byte (bits 8-15) to Port 2
+    P2 = (unsigned char)((sum >> 8) & 0xFF);
+
+    // Route 17th carry bit (overflow beyond 16 bits) to P3.0
+    if (sum > 0xFFFF) {
+        P3_0 = 1;
+    } else {
+        P3_0 = 0;
+    }
+
+    while (1);
+}

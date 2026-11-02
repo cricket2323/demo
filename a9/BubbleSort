@@ -1,0 +1,52 @@
+#include <mcs51/8051.h>
+
+#define SIZE 5
+
+// Prevent compiler from stripping software delay loops
+void delay_1s(void) {
+    volatile unsigned int i;
+    volatile unsigned int j;
+    for (i = 0; i < 300; i++) {
+        for (j = 0; j < 300; j++) {
+            __asm nop __endasm;
+        }
+    }
+}
+
+void bubble_sort(unsigned char arr[], unsigned char n) {
+    unsigned char i, j, temp;
+    for (i = 0; i < n - 1; i++) {
+        for (j = 0; j < n - 1 - i; j++) {
+            if (arr[j] > arr[j + 1]) {
+                temp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = temp;
+            }
+        }
+    }
+}
+
+void main(void) {
+    // 5 unsigned 8-bit integers stored in RAM
+    unsigned char arr[SIZE] = {45, 12, 89, 3, 27};
+    unsigned char k;
+
+    // Step 1: Ensure completion LED on P2.0 starts OFF
+    P2_0 = 0;
+
+    // Step 2: Perform Bubble Sort
+    bubble_sort(arr, SIZE);
+
+    // Step 3: Turn ON indicator LED on P2.0 signifying sort completion
+    P2_0 = 1;
+
+    // Step 4: Continuously display each sorted element on Port 1 at 1s intervals
+    while (1) {
+        for (k = 0; k < SIZE; k++) {
+            P1 = arr[k];
+            delay_1s();
+        }
+        // Small pause between repeating display cycles
+        delay_1s();
+    }
+}

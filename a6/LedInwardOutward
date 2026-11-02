@@ -1,0 +1,33 @@
+ORG 0000H
+
+MAIN_LOOP:
+    MOV P2, #7EH
+    ACALL DELAY
+
+    MOV P2, #0BDH
+    ACALL DELAY
+
+    MOV P2, #0DBH
+    ACALL DELAY
+
+    MOV P2, #0E7H
+    ACALL DELAY
+
+    MOV P2, #0DBH
+    ACALL DELAY
+
+    MOV P2, #0BDH
+    ACALL DELAY
+
+    SJMP MAIN_LOOP
+
+DELAY:
+    MOV R3, #02H
+D_OUTER:
+    MOV R4, #02H
+D_INNER:
+    DJNZ R4, D_INNER
+    DJNZ R3, D_OUTER
+    RET
+
+    END

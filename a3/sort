@@ -1,0 +1,32 @@
+ORG 0000H
+
+    MOV R2, #09H
+
+OUTER_LOOP:
+    MOV R0, #40H
+    MOV R3, #09H
+
+INNER_LOOP:
+    MOV A, @R0
+    INC R0
+    MOV B, @R0
+
+    CJNE A, B, CHECK_ORDER
+    SJMP NO_SWAP
+
+CHECK_ORDER:
+    JC NO_SWAP
+
+    MOV @R0, A
+    DEC R0
+    MOV @R0, B
+    INC R0
+
+NO_SWAP:
+    DJNZ R3, INNER_LOOP
+    DJNZ R2, OUTER_LOOP
+
+HERE:
+    SJMP HERE
+
+    END

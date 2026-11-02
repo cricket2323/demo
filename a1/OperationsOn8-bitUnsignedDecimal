@@ -1,0 +1,68 @@
+ORG 0000H
+
+    ; =========================================================
+    ; Part 1: Addition of two 8-bit Decimal (BCD) numbers
+    ; Example: 48 + 37 = 85 (Decimal)
+    ; =========================================================
+    MOV A, #48H         ; Load first BCD number (48)
+    ADD A, #37H         ; Binary ADD with second BCD number (37) -> A = 7FH
+    DA A                ; Decimal Adjust Accumulator -> A = 85H, CY = 0
+    MOV 30H, A          ; Store sum at RAM 30H
+    MOV A, #00H
+    ADDC A, #00H        ; Capture Carry bit
+    MOV 31H, A          ; Store Carry (00H or 01H) at RAM 31H
+
+    ; =========================================================
+    ; Part 2: Subtraction of two 8-bit Decimal numbers
+    ; Example: 85 - 37 = 48 (Decimal)
+    ; Note: 8051 does not have DA A for subtraction.
+    ; For valid decimal subtraction: if borrow occurs, subtract 06H.
+    ; =========================================================
+    MOV A, #85H         ; Load Minuend
+    CLR C               ; Clear borrow flag before subtraction
+    SUBB A, #37H        ; Subtract Subtrahend (85H - 37H = 4EH)
+    JNC NO_DEC_ADJ      ; If no borrow (CY = 0), check nibble adjustment
+    CLR C
+NO_DEC_ADJ:
+    ; Convert raw binary difference to BCD format
+    ; 85H - 37H in binary: 4EH. Adjust by subtracting 06H: 4EH - 06H = 48H
+    ANL A, #0FH
+    CJNE A, #0AH, CHK_LOWER
+CHK_LOWER:
+    JC SKIP_SUB6
+    ; If lower nibble was >= 0AH, subtract 06H
+    MOV A, #85H
+    CLR C
+    SUBB A, #37H
+    CLR C
+    SUBB A, #06H
+    SJMP STORE_SUB
+SKIP_SUB6:
+    MOV A, #85H
+    CLR C
+    SUBB A, #37H
+STORE_SUB:
+    MOV 32H, A          ; Store subtraction result at RAM 32H
+
+    ; =========================================================
+    ; Part 3: Multiplication of two 8-bit Decimal numbers
+    ; Example: 12 * 05 = 60
+    ; =========================================================
+    MOV A, #12          ; Multiplicand (0CH = 12 decimal)
+    MOV B, #05          ; Multiplier (05H = 5 decimal)
+    MUL AB              ; Product: A = 60 (3CH), B = 00H
+    MOV 33H, A          ; Store lower byte of product at RAM 33H
+    MOV 34H, B          ; Store upper byte of product at RAM 34H
+
+    ; =========================================================
+    ; Part 4: Division of two 8-bit Decimal numbers
+    ; Example: 95 / 10 = Quotient 9, Remainder 5
+    ; =========================================================
+    MOV A, #95          ; Dividend (5FH = 95 decimal)
+    MOV B, #10          ; Divisor (0AH = 10 decimal)
+    DIV AB              ; A = Quotient (09H), B = Remainder (05H)
+    MOV 35H, A          ; Store Quotient at RAM 35H
+    MOV 36H, B          ; Store Remainder at RAM 36H
+
+    SJMP $              ; Terminate / halt execution
+    END

@@ -1,0 +1,54 @@
+#include <mcs51/8051.h>
+
+unsigned char count_primes(unsigned char n) {
+    unsigned char k, d;
+    unsigned char count = 0;
+    unsigned char is_prime;
+
+    if (n < 2) {
+        return 0;
+    }
+
+    // Outer loop: iterate through every integer k from 2 to N
+    for (k = 2; k <= n; k++) {
+        is_prime = 1;
+
+        // Inner loop: test divisibility using modulo operator (%)
+        for (d = 2; (unsigned int)d * d <= k; d++) {
+            if (k % d == 0) {
+                is_prime = 0;
+                break;
+            }
+        }
+
+        if (is_prime) {
+            count++;
+        }
+
+        // Handle 8-bit unsigned loop wrap-around when n == 255
+        if (k == 255) {
+            break;
+        }
+    }
+
+    return count;
+}
+
+void main(void) {
+    unsigned char upper_n;
+    unsigned char total_primes;
+
+    while (1) {
+        // Step 1: Configure Port 0 as digital input
+        P0 = 0xFF;
+
+        // Step 2: Read dynamic upper limit N from Port 0
+        upper_n = P0;
+
+        // Step 3: Count primes up to N
+        total_primes = count_primes(upper_n);
+
+        // Step 4: Output total prime count to Port 1
+        P1 = total_primes;
+    }
+}

@@ -1,0 +1,30 @@
+ORG 0000H
+
+    MOV R0, #04H
+    MOV R1, #06H
+
+    MOV A, #00H
+    MOV R6, #00H
+    MOV R7, #00H
+
+    MOV A, R0
+    JZ DONE
+    MOV A, R1
+    JZ DONE
+
+    MOV A, #00H
+
+ADD_LOOP:
+    ADD A, R0
+    JNC NO_CARRY
+    INC R7
+
+NO_CARRY:
+    DJNZ R1, ADD_LOOP
+
+    MOV R6, A
+
+DONE:
+    SJMP DONE
+
+    END

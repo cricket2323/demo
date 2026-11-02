@@ -1,0 +1,22 @@
+ORG 0000H
+
+    MOV R0, #06H
+    MOV A, #01H
+    MOV B, #00H
+
+    MOV R1, #01H
+
+FACT_LOOP:
+    MOV B, R1
+    MUL AB
+
+    MOV R6, A
+    MOV R7, B
+
+    INC R1
+    DJNZ R0, FACT_LOOP
+
+DONE:
+    SJMP DONE
+
+    END

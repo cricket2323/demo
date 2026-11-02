@@ -1,0 +1,46 @@
+ORG 0000H
+
+    ; =========================================================
+    ; Part (a): Load ASCII digits and convert to unpacked BCD
+    ; Given operands: '5' (35H) and '9' (39H)
+    ; =========================================================
+    MOV R0, #35H        ; ASCII '5'
+    MOV R1, #39H        ; ASCII '9'
+
+    ; Convert R0 to unpacked BCD
+    MOV A, R0
+    ANL A, #0FH         ; A = 05H
+    MOV R2, A           ; R2 = Unpacked BCD operand 1 (05H)
+
+    ; Convert R1 to unpacked BCD
+    MOV A, R1
+    ANL A, #0FH         ; A = 09H
+    MOV R3, A           ; R3 = Unpacked BCD operand 2 (09H)
+
+    ; =========================================================
+    ; Part (b): Perform addition on converted BCD digits
+    ; =========================================================
+    MOV A, R2           ; A = 05H
+    ADD A, R3           ; Binary addition: 05H + 09H = 0EH
+    DA A                ; Adjust to BCD: A = 14H (Tens = 1, Units = 4)
+    MOV R4, A           ; Save packed BCD result in R4
+
+    ; =========================================================
+    ; Part (c): Convert sum back to ASCII format
+    ; Result 14H -> ASCII Tens: '1' (31H), ASCII Units: '4' (34H)
+    ; =========================================================
+
+    ; --- Extract and convert Units digit ---
+    ANL A, #0FH         ; A = 04H (Units BCD digit)
+    ORL A, #30H         ; A = 34H (ASCII '4')
+    MOV 50H, A          ; Store ASCII Units character at RAM 50H
+
+    ; --- Extract and convert Tens digit ---
+    MOV A, R4           ; Restore packed BCD sum (14H)
+    SWAP A              ; A = 41H
+    ANL A, #0FH         ; A = 01H (Tens BCD digit)
+    ORL A, #30H         ; A = 31H (ASCII '1')
+    MOV 51H, A          ; Store ASCII Tens character at RAM 51H
+
+    SJMP $              ; Halt
+    END

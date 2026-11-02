@@ -1,0 +1,24 @@
+ORG 0000H           
+
+    MOV P1, #0B2H       
+    MOV R0, P1          
+    MOV R1, #00H       
+    MOV R2, #08H       
+
+REV_LOOP:
+    MOV A, R0           
+    RRC A               
+    MOV R0, A           
+
+    MOV A, R1           
+    RLC A               
+    MOV R1, A           
+
+    DJNZ R2, REV_LOOP   
+
+    MOV 30H, A          
+
+HERE:
+    SJMP HERE          
+
+    END

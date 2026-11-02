@@ -1,0 +1,25 @@
+#include <mcs51/8051.h>
+
+void main(void) {
+    // Configure Timer 0 in Mode 1 (16-bit Counter, C/T = 1)
+    TMOD = 0x05;
+
+    // Clear counter registers
+    TH0 = 0x00;
+    TL0 = 0x00;
+
+    // Start Timer 0 Counter
+    TR0 = 1;
+
+    // Initialize indicator on P1.0 to 0
+    P1_0 = 0;
+
+    while (1) {
+        // Check if 10 pulses have been received on pin T0 (P3.4)
+        if (TL0 >= 10) {
+            TL0 = 0x00;       // Reset count to zero
+            TH0 = 0x00;
+            P1_0 = !P1_0;     // Toggle LED / indicator bit on Port 1
+        }
+    }
+}

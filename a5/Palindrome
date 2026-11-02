@@ -1,0 +1,44 @@
+ORG 0000H
+
+    MOV DPTR, #4000H
+    MOVX A, @DPTR
+    MOV R0, A
+
+    ANL A, #0F0H
+    MOV B, A
+
+    MOV A, R0
+    ANL A, #0FH
+    MOV R1, A
+
+    MOV R2, #00H
+    MOV R3, #04H
+
+REV_NIBBLE:
+    MOV A, R1
+    RRC A
+    MOV R1, A
+
+    MOV A, R2
+    RLC A
+    MOV R2, A
+
+    DJNZ R3, REV_NIBBLE
+
+    SWAP A
+    CJNE A, B, NOT_PAL
+
+    MOV A, #0FFH
+    SJMP STORE_RES
+
+NOT_PAL:
+    MOV A, #00H
+
+STORE_RES:
+    INC DPTR
+    MOVX @DPTR, A
+
+HERE:
+    SJMP HERE
+
+    END

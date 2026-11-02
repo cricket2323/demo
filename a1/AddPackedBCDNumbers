@@ -1,0 +1,23 @@
+ORG 0000H
+
+    ; Input Data: Packed BCD numbers stored at 50H and 51H
+    ; Example: 79 (BCD) + 68 (BCD) = 147 (BCD)
+    MOV 50H, #79H       ; Operand 1 = 79 in BCD
+    MOV 51H, #68H       ; Operand 2 = 68 in BCD
+
+    MOV A, 50H         ; Load first BCD operand into A (79H)
+    ADD A, 51H         ; Binary addition: 79H + 68H = E1H, AC = 1, CY = 0
+    DA A                ; Decimal Adjust:
+                        ; Lower nibble 1 + 6 = 7 (due to AC=1)
+                        ; Upper nibble EH > 9 -> EH + 6H = 14H -> sets CY = 1
+                        ; Final A = 47H, CY = 1
+
+    MOV 52H, A          ; Store lower two BCD digits (47H) at RAM 52H
+
+    ; Capture BCD Carry (Hundreds digit)
+    MOV A, #00H
+    ADDC A, #00H        ; A = 01H
+    MOV 53H, A          ; Store Hundreds digit (01H) at RAM 53H
+
+    SJMP $              ; Stop
+    END

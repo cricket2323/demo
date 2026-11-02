@@ -1,0 +1,38 @@
+#include <mcs51/8051.h>
+
+unsigned int compute_factorial_16(unsigned char n) {
+    unsigned int result = 1;
+    unsigned char i;
+
+    // Check for 16-bit overflow condition (N >= 9)
+    if (n >= 9) {
+        return 0xFFFF; // Overflow indicator
+    }
+
+    // Compute N! for N in range 0..8
+    for (i = 2; i <= n; i++) {
+        result *= i;
+    }
+
+    return result;
+}
+
+void main(void) {
+    unsigned char n;
+    unsigned int fact;
+
+    while (1) {
+        // Step 1: Configure Port 0 as input
+        P0 = 0xFF;
+
+        // Step 2: Read dynamic input N from Port 0
+        n = P0;
+
+        // Step 3: Compute 16-bit factorial
+        fact = compute_factorial_16(n);
+
+        // Step 4: Split output across Port 1 (lower byte) and Port 2 (upper byte)
+        P1 = (unsigned char)(fact & 0xFF);        // Bits 0-7
+        P2 = (unsigned char)((fact >> 8) & 0xFF); // Bits 8-15
+    }
+}

@@ -1,0 +1,68 @@
+ORG 0000H
+
+    MOV R0, #30H
+    MOV R1, #0FH
+    MOV R2, #00H
+    MOV R3, #00H
+
+CHECK_LOOP:
+    MOV A, @R0
+    RLC A
+    JC IS_NEG
+
+    INC R2
+    SJMP NEXT_VAL
+
+IS_NEG:
+    INC R3
+
+NEXT_VAL:
+    INC R0
+    DJNZ R1, CHECK_LOOP
+
+    MOV 50H, R2
+    MOV 51H, R3
+
+HERE:
+    SJMP HERE
+
+    END
+
+
+OR
+
+
+ORG 0000H
+
+    MOV DPTR, #0100H
+    MOV R1, #0FH
+    MOV R2, #00H
+    MOV R3, #00H
+
+CHECK_LOOP:
+    MOVX A, @DPTR
+    RLC A
+    JC IS_NEG
+
+    INC R2
+    SJMP NEXT_VAL
+
+IS_NEG:
+    INC R3
+
+NEXT_VAL:
+    INC DPTR
+    DJNZ R1, CHECK_LOOP
+
+    MOV DPTR, #0200H
+    MOV A, R2
+    MOVX @DPTR, A
+
+    INC DPTR
+    MOV A, R3
+    MOVX @DPTR, A
+
+HERE:
+    SJMP HERE
+
+    END

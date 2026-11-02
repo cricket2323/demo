@@ -1,0 +1,40 @@
+#include <mcs51/8051.h>
+
+// Lookup table stored in code memory (ROM)
+// Maps digits 0 through 9 to 7-segment common cathode patterns
+__code const unsigned char seg_code[10] = {
+    0x3F, // 0
+    0x06, // 1
+    0x5B, // 2
+    0x4F, // 3
+    0x66, // 4
+    0x6D, // 5
+    0x7D, // 6
+    0x07, // 7
+    0x7F, // 8
+    0x6F  // 9
+};
+
+// Software delay loop (~1 second at 12 MHz)
+void delay_1s(void) {
+    volatile unsigned int i;
+    volatile unsigned int j;
+    for (i = 0; i < 300; i++) {
+        for (j = 0; j < 300; j++) {
+            __asm nop __endasm;
+        }
+    }
+}
+
+void main(void) {
+    unsigned char count;
+
+    while (1) {
+        // Up-counter from 0 to 9
+        for (count = 0; count < 10; count++) {
+            P1 = seg_code[count]; // Send pattern to Port 1
+            delay_1s();           // Hold digit for ~1s
+        }
+        // Resets automatically to 0 on loop repeat
+    }
+}

@@ -1,0 +1,55 @@
+
+    ORG 0000H
+
+INIT:
+    MOV P1, #00H        ; Clear segment bus
+    MOV P2, #00H        ; Turn off all digits initially
+
+MAIN_LOOP:
+    ; -------------------------------------------------------------
+    ; DIGIT 3: Leftmost / Thousands place -> '2' (5BH)
+    ; -------------------------------------------------------------
+    MOV P1, #5BH        ; Pattern for '2'
+    MOV P2, #08H        ; Enable Digit 3 (P2.3 = 1)
+    ACALL MUX_DELAY     ; Hold display for Persistence of Vision (POV)
+    MOV P2, #00H        ; Blank display (prevents ghosting)
+
+    ; -------------------------------------------------------------
+    ; DIGIT 2: Hundreds place -> '0' (3FH)
+    ; -------------------------------------------------------------
+    MOV P1, #3FH        ; Pattern for '0'
+    MOV P2, #04H        ; Enable Digit 2 (P2.2 = 1)
+    ACALL MUX_DELAY
+    MOV P2, #00H        ; Blank display
+
+    ; -------------------------------------------------------------
+    ; DIGIT 1: Tens place -> '0' (3FH)
+    ; -------------------------------------------------------------
+    MOV P1, #3FH        ; Pattern for '0'
+    MOV P2, #02H        ; Enable Digit 1 (P2.1 = 1)
+    ACALL MUX_DELAY
+    MOV P2, #00H        ; Blank display
+
+    ; -------------------------------------------------------------
+    ; DIGIT 0: Rightmost / Units place -> '4' (66H)
+    ; -------------------------------------------------------------
+    MOV P1, #66H        ; Pattern for '4'
+    MOV P2, #01H        ; Enable Digit 0 (P2.0 = 1)
+    ACALL MUX_DELAY
+    MOV P2, #00H        ; Blank display
+
+    SJMP MAIN_LOOP      ; Repeat sequence indefinitely
+
+; -----------------------------------------------------------------
+; Fast POV Multiplexing Delay (~1 ms)
+; -----------------------------------------------------------------
+MUX_DELAY:
+    MOV R6, #02H
+L1:
+    MOV R7, #0FAH
+L2:
+    DJNZ R7, L2
+    DJNZ R6, L1
+    RET
+
+    END

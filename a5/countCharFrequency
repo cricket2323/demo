@@ -1,0 +1,27 @@
+ORG 0000H
+
+    MOV DPTR, #3050H
+    MOVX A, @DPTR
+    MOV B, A
+
+    MOV DPTR, #3000H
+    MOV R2, #08H
+    MOV R1, #00H
+
+SCAN_LOOP:
+    MOVX A, @DPTR
+    CJNE A, B, NEXT_CHAR
+    INC R1
+
+NEXT_CHAR:
+    INC DPTR
+    DJNZ R2, SCAN_LOOP
+
+    MOV DPTR, #3060H
+    MOV A, R1
+    MOVX @DPTR, A
+
+HERE:
+    SJMP HERE
+
+    END

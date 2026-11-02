@@ -1,0 +1,38 @@
+#include <mcs51/8051.h>
+
+// Function to calculate factorial or return 0xFF on overflow
+unsigned char compute_factorial(unsigned char n) {
+    unsigned char result = 1;
+    unsigned char i;
+
+    // Check for overflow condition: N >= 6 causes N! > 255
+    if (n >= 6) {
+        return 0xFF; // Indicate 8-bit arithmetic overflow
+    }
+
+    // 0! and 1! evaluate to 1
+    for (i = 2; i <= n; i++) {
+        result *= i;
+    }
+
+    return result;
+}
+
+void main(void) {
+    unsigned char input_n;
+    unsigned char output_val;
+
+    while (1) {
+        // Step 1: Configure Port 0 as input
+        P0 = 0xFF;
+
+        // Step 2: Read dynamic input N from Port 0
+        input_n = P0;
+
+        // Step 3: Compute factorial
+        output_val = compute_factorial(input_n);
+
+        // Step 4: Output result or overflow flag to Port 1
+        P1 = output_val;
+    }
+}

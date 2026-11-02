@@ -1,0 +1,56 @@
+#include <mcs51/8051.h>
+
+unsigned int compute_power(unsigned char x, unsigned char y) {
+    unsigned long result = 1;
+    unsigned char i;
+
+    // Edge case: 0^0 is treated as indeterminate -> outputs 0x0000
+    if (x == 0 && y == 0) {
+        return 0x0000;
+    }
+
+    // Edge case: 0^Y for Y > 0 evaluates to 0
+    if (x == 0) {
+        return 0x0000;
+    }
+
+    // Edge case: X^0 for X > 0 evaluates to 1
+    if (y == 0) {
+        return 0x0001;
+    }
+
+    // Iterative multiplication with overflow check
+    for (i = 0; i < y; i++) {
+        result *= x;
+
+        // If intermediate value exceeds 16-bit unsigned limit (65535)
+        if (result > 0xFFFF) {
+            return 0xFFFF; // Indicate arithmetic overflow
+        }
+    }
+
+    return (unsigned int)result;
+}
+
+void main(void) {
+    unsigned char base_x;
+    unsigned char exp_y;
+    unsigned int pwr;
+
+    while (1) {
+        // Step 1: Configure Port 0 and Port 3 as input ports
+        P0 = 0xFF;
+        P3 = 0xFF;
+
+        // Step 2: Read dynamic inputs
+        base_x = P0; // Read base X from Port 0
+        exp_y  = P3; // Read exponent Y from Port 3
+
+        // Step 3: Compute power
+        pwr = compute_power(base_x, exp_y);
+
+        // Step 4: Split across Port 1 (lower byte) and Port 2 (upper byte)
+        P1 = (unsigned char)(pwr & 0xFF);        // Bits 0-7
+        P2 = (unsigned char)((pwr >> 8) & 0xFF); // Bits 8-15
+    }
+}

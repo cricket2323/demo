@@ -1,0 +1,31 @@
+ORG 0000H
+
+MAIN_LOOP:
+    MOV DPTR, #TABLE
+    MOV R2, #05H            ; 5 numbers to display (9, 7, 5, 3, 1)
+    MOV R1, #00H            ; Table index offset
+
+DISPLAY_NEXT:
+    MOV A, R1
+    MOVC A, @A+DPTR
+    MOV P1, A               ; Send segment pattern to Port 1
+    ACALL DELAY
+    INC R1
+    DJNZ R2, DISPLAY_NEXT
+
+    SJMP MAIN_LOOP
+
+DELAY:
+    MOV R3, #05H
+D_OUTER:
+    MOV R4, #50H
+D_INNER:
+    DJNZ R4, D_INNER
+    DJNZ R3, D_OUTER
+    RET
+
+; Common Cathode 7-segment lookup table for odd digits: 9, 7, 5, 3, 1
+TABLE:
+    DB 6FH, 07H, 6DH, 4FH, 06H
+
+    END

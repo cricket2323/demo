@@ -1,0 +1,39 @@
+ORG 0000H
+
+    MOV 30H, #0DH
+    MOV A, 30H
+
+    CJNE A, #02H, CHECK_LESS
+    SJMP IS_PRIME
+
+CHECK_LESS:
+    JC NOT_PRIME
+
+    MOV R1, #02H
+
+LOOP:
+    MOV A, R1
+    CJNE A, 30H, TEST_DIV
+    SJMP IS_PRIME
+
+TEST_DIV:
+    MOV A, 30H
+    MOV B, R1
+    DIV AB
+    MOV A, B
+    JZ NOT_PRIME
+
+    INC R1
+    SJMP LOOP
+
+IS_PRIME:
+    MOV 31H, #01H
+    SJMP DONE
+
+NOT_PRIME:
+    MOV 31H, #00H
+
+DONE:
+    SJMP DONE
+
+    END
